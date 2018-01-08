@@ -33,12 +33,27 @@ public class AwsApiService {
                 .withSourceBundle(new S3Location()
                         .withS3Bucket(S3_BUCKET_NAME)
                         .withS3Key(ZIP_FILE_NAME)));
+
         client.createEnvironment(new CreateEnvironmentRequest()
                 .withApplicationName(APPLICATION_NAME)
+                .withVersionLabel(VERSION_LABEL)
                 .withEnvironmentName(ENVIRONMENT_NAME)
-                .withSolutionStackName(SOLUTION_STACK_FOR_DOCKER));
+                .withSolutionStackName(SOLUTION_STACK_FOR_DOCKER)
+                .withOptionSettings(getConfigurationOptionSettings()));
 
         client.shutdown();
+    }
+
+    private ConfigurationOptionSetting[] getConfigurationOptionSettings() {
+        return new ConfigurationOptionSetting[]{
+                new ConfigurationOptionSetting()
+                        .withNamespace("aws:autoscaling:launchconfiguration")
+                        .withOptionName("InstanceType")
+                        .withValue("t2.micro"),
+                new ConfigurationOptionSetting()
+                        .withNamespace("aws:elasticbeanstalk:environment")
+                        .withOptionName("EnvironmentType")
+                        .withValue("SingleInstance")};
     }
 
     private void putFileIntoS3(AWSCredentials awsCredentials, Regions region, File zipFile) {
@@ -48,17 +63,6 @@ public class AwsApiService {
         }
         amazonS3.putObject(S3_BUCKET_NAME, ZIP_FILE_NAME, zipFile);
     }
-
-    public void deleteApplication(AWSCredentials awsCredentials, Regions region) {
-        AWSElasticBeanstalk client = createElasticBeanstalkClient(awsCredentials, region);
-
-        TerminateEnvironmentResult terminateEnvironmentResult = client.terminateEnvironment(new TerminateEnvironmentRequest().withEnvironmentName(ENVIRONMENT_NAME));
-
-        client.deleteEnvironmentConfiguration(new DeleteEnvironmentConfigurationRequest(APPLICATION_NAME, ENVIRONMENT_NAME));
-        client.deleteApplication(new DeleteApplicationRequest(APPLICATION_NAME));
-        client.shutdown();
-    }
-
 
     private AWSElasticBeanstalk createElasticBeanstalkClient(AWSCredentials awsCredentials, Regions region) {
         return AWSElasticBeanstalkClientBuilder
