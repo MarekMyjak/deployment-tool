@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "aws")
 public class AwsController {
 
-    private final AwsApiService awsApiService;
+    private final AwsDeployService awsDeployService;
 
     @Autowired
-    public AwsController(AwsApiService awsApiService) {
-        this.awsApiService = awsApiService;
+    public AwsController(AwsDeployService awsDeployService) {
+        this.awsDeployService = awsDeployService;
     }
 
     @GetMapping(value = "")
