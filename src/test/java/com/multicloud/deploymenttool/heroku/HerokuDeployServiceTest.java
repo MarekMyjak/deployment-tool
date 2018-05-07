@@ -15,7 +15,7 @@ public class HerokuDeployServiceTest {
     @SneakyThrows
     public void deployTest() {
 //        given
-        String apiKey = "c7c77a5c-f64d-472e-8963-a4ef794f3340";
+        String apiKey = "....";
 //        when
         final App app = herokuDeployService.createApp(apiKey);
         final String url = "https://github.com/heroku/node-js-getting-started/archive/master.tar.gz";
